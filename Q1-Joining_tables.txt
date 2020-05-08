@@ -1,0 +1,21 @@
+
+
+/* Q1-Joining tables */
+/* Assumption: Id in users table is same as user_id in loan table */
+/* Assumption: Id in loans table is same as loan_id in transaction table */
+
+
+SELECT l.id as loan_id,
+        l.amount,
+        l.user_id as user_id,
+        u.created as user_created,
+        t.transaction_fee,
+        t.t_type
+FROM loans as l
+left join users as u
+on l.user_id=u.id
+left join transactions as t 
+on l.id = t.loan_id 
+and (t.t_type = 'disbursement')
+where l.loan_status in ('active','repaid') 
+order by u.created desc;

@@ -1,0 +1,37 @@
+
+
+/* Aggregation */
+
+/* Since the Question is not clear whether the end table should reflect aggregation by month taking years into consideration or not i.e 2020 Jan to feb , 2019 Jan to feb ..both the tables are shown*/
+
+
+/* Table 1(First Method) : Assumption: Aggregation at month level irrespective of months */
+
+
+
+select date_part('month',to_date(created, 'YYY-MM-DD hh24:mi')) as loan_month,
+        count(id) as total_loans,
+        sum(amount) as total_amount,
+        avg(amount) as avg_amount,
+        min(amount) as small_amount,
+        max(amount) as largest_amount 
+from loans
+group by date_part('month',to_date(created, 'YYY-MM-DD hh24:mi')) 
+order by loan_month desc;
+
+
+
+
+/* Table2 (Second Method) : Assumption: If the aggregation at month level taking years into account */
+
+
+select date_part('month',to_date(created, 'YYY-MM-DD hh24:mi')) as loan_month,
+	date_part('year',to_date(created, 'YYY-MM-DD hh24:mi')) as loan_year,
+        count(id) as total_loans,
+        sum(amount) as total_amount,
+        avg(amount) as avg_amount,
+        min(amount) as small_amount,
+        max(amount) as largest_amount 
+from loans
+group by date_part('year',to_date(created, 'YYY-MM-DD hh24:mi')),date_part('month',to_date(created, 'YYY-MM-DD hh24:mi')) 
+order by loan_year desc,loan_month desc;
