@@ -1,0 +1,500 @@
+---
+title: "Umba_coding challenge_Exploration"
+author: "Yamini"
+date: "`r format(Sys.Date(), "%Y-%B-%d")`"
+output:
+  pdf_document:
+    toc: yes
+  html_document:
+    code_download: yes
+    code_folding: hide
+    df_print: paged
+    highlight: zenburn
+    theme: united
+    toc: yes
+---
+
+<style>
+slides > slide.backdrop {
+  background: white;
+}
+</style>
+
+<style>
+.column-left{
+  float: left;
+  width: 76%;
+  text-align: left;
+}
+.column-right{
+  float: right;
+  width: 24%;
+  text-align: right;
+}
+</style>
+
+```{r}
+library(tidyverse)
+library(readr)
+library(radiant)
+```
+ 
+
+```{r}
+
+
+data <- readr::read_csv("weekly_logins.csv", n_max = Inf) %>%
+  fix_names() %>%
+  to_fct()
+
+```
+
+```{r}
+glimpse(data)
+```
+```{r}
+head(data)
+```
+
+
+# Exploratory Analysis
+
+
+## Distribution of weekly logins
+
+
+```{r}
+hist(data$Weekly_Logins)
+
+```
+
+Histogram is left skewed .Most of the weekly logins are in between 2-5 per week.
+
+
+## Free trials exploration
+
+
+```{r}
+data %>%
+  group_by(Had_Free_Trial)%>%
+  summarise(avg_engagement = mean(Weekly_Logins),N_count =n())%>%
+  arrange(desc(avg_engagement))
+
+```
+ 
+
+```{r fig.width = 7, fig.height = 7, dpi = 96}
+visualize(
+  data, 
+  xvar = "Weekly_Logins", 
+  type = "density", 
+  facet_row = "Had_Free_Trial", 
+  theme = "theme_light", 
+  labs = list(title = "Engagement levels - Had free trial/Not"), 
+  custom = FALSE
+)
+
+```
+
+There is clear engagement level difference between users who had free trials and who didnt had free tials. It is recommended to give free trials to users for higher engagement levels.
+
+
+## Engagement levels across companies exploration
+
+
+```{r}
+data %>%
+  group_by(Company_Name)%>%
+  summarise(avg_engagement = mean(Weekly_Logins),N_count =n())%>%
+  arrange(desc(avg_engagement))
+
+```
+
+
+```{r fig.width = 7, fig.height = 7, dpi = 96}
+visualize(
+  data, 
+  xvar = "Company_Name", 
+  yvar = "Weekly_Logins", 
+  type = "box", 
+  axes = "flip", 
+  theme = "theme_light", 
+  labs = list(title = "Engagement Levels across companies"), 
+  custom = FALSE
+)
+```
+
+Engagement levels across companies are almost same except "One Legal". Users with company name "One Legal" has higher average engagement levels compared to other companies
+
+
+## Engagement levels across Industries
+
+
+```{r fig.width = 7, fig.height = 7, dpi = 96}
+visualize(
+  data, 
+  xvar = "Industry", 
+  yvar = "Weekly_Logins", 
+  type = "box", 
+  axes = "flip", 
+  theme = "theme_light", 
+  labs = list(title = "Engagement Levels across Industries"), 
+  custom = FALSE
+)
+```
+
+Engagement levles across different industries is almost saame except "Hospitality" whose mean engagement levels is little higher than other industries
+
+
+
+```{r}
+data %>%
+  group_by(Industry)%>%
+  summarise(avg_engagement = mean(Weekly_Logins),N_count =n())%>%
+  arrange(desc(avg_engagement))
+
+```
+
+
+## Engagement levels across Most used page
+
+
+```{r fig.width = 7, fig.height = 7, dpi = 96}
+visualize(
+  data, 
+  xvar = "Most_Used_Page", 
+  yvar = "Weekly_Logins", 
+  type = "box", 
+  theme = "theme_light", 
+  custom = FALSE
+)
+```
+
+Users whose most used page is tool/storyboard has higher engagement levels. Due to lack of further information about these pages, causal relation cannot be established. Further analysis is needed to understand the effect
+
+
+## Engagement levels across different company sizes
+
+
+
+```{r fig.width = 7, fig.height = 7, dpi = 96}
+visualize(
+  data, 
+  xvar = "Company_Size", 
+  yvar = "Weekly_Logins",
+  theme = "theme_light", 
+  type = "box", 
+  custom = FALSE
+)
+```
+
+There seem to be not much of difference across different company sizes.May be interaction with another variable might have an impact on the engagement levels which will be explored in the further analysis
+
+
+## Engagement levels across Territories
+
+
+```{r fig.width = 7, fig.height = 7, dpi = 96}
+visualize(
+  data, 
+  xvar = "Weekly_Logins", 
+  type = "density", 
+  facet_row = "Territory", 
+  theme = "theme_light", 
+  labs = list(title = "Engagement levels across different referrals"), 
+  custom = FALSE
+)
+
+```
+
+Engagement levels in the "East" Terriroty are higher than west and midwest territory. Further qualitative/quantitative analysis can be done to understand what factors cause the higher engagement levels in East Territory
+and similar things can be replicated in the other territories if possible.Or  if possible target for more customer growth in the east territory.
+
+Assumption: Territory means territory/location of the user
+
+
+## Engagement levels for slack Integration
+
+
+```{r}
+
+data %>%
+  group_by(Slack_Integration)%>%
+  summarise(avg_engagement = mean(Weekly_Logins),N_count =n())%>%
+  arrange(desc(avg_engagement))
+
+```
+
+
+```{r fig.width = 7, fig.height = 7, dpi = 96}
+visualize(
+  data, 
+  xvar = "Weekly_Logins", 
+  type = "density", 
+  facet_row = "Slack_Integration", 
+  smooth = 0.7, 
+  alpha = 0.34, 
+  theme = "theme_classic", 
+  labs = list(
+    title = "Engagement levels with slack integration", 
+    y = "Density\n"
+  ), 
+  custom = FALSE
+)
+```
+
+Engagement levels are high when there is slack integration.When there is no slack integration,most of the weekly logins are below 7. Therefore to drive more engagagement it is encouraged to have slack integration
+
+
+## Engagement levels across different referral sources
+
+
+```{r fig.width = 7, fig.height = 7, dpi = 96}
+visualize(
+  data, 
+  xvar = "Most_common_referrer", 
+  yvar = "Weekly_Logins",
+  theme = "theme_light", 
+  type = "box", axes = "flip", 
+  labs = list(title = "Engagement levels across different referrals"), 
+  custom = FALSE
+)
+```
+
+Not much difference in the engagement level pattern across different referal sources.
+
+
+## Engagement levels for sales call in trial
+
+
+```{r fig.width = 7, fig.height = 7, dpi = 96}
+visualize(
+  data, 
+  xvar = "Weekly_Logins", 
+  type = "density", 
+  facet_row = "Sales_Call_in_Trial", 
+  theme = "theme_light", 
+  labs = list(title = "Engagement levels - Had sales call in trial/Not"), 
+  custom = FALSE
+)
+
+```
+
+
+## Engagement levels for Zen Desk Integration
+
+
+```{r fig.width = 7, fig.height = 7, dpi = 96}
+visualize(
+  data, 
+  xvar = "Weekly_Logins", 
+  type = "density", 
+  facet_row = "Zendesk_Integration", 
+  theme = "theme_light", 
+  labs = list(title = "Engagement levels - Zendesk_Integration/Not"), 
+  custom = FALSE
+)
+
+```
+
+
+## Engagement levels for Gmail Integration
+
+
+```{r fig.width = 7, fig.height = 7, dpi = 96}
+visualize(
+  data, 
+  xvar = "Weekly_Logins", 
+  type = "density", 
+  facet_row = "Gmail_Integration", 
+  theme = "theme_light", 
+  labs = list(title = "Engagement levels - Gmail_Integration/Not"), 
+  custom = FALSE
+)
+
+```
+
+
+## Engagement levels for User Admin Panel
+
+
+```{r fig.width = 7, fig.height = 7, dpi = 96}
+visualize(
+  data, 
+  xvar = "Used_Admin_Panel", 
+  yvar = "Weekly_Logins",
+  theme = "theme_light", 
+  type = "box", 
+  labs = list(title = "Engagement levels - Used_Admin_Panel/Not"),
+  custom = FALSE
+)
+```
+
+## Engagement levels for Support Request
+
+```{r fig.width = 7, fig.height = 7, dpi = 96}
+visualize(
+  data, 
+  xvar = "Has_Issued_Support_Request", 
+  yvar = "Weekly_Logins",
+  theme = "theme_light", 
+  type = "box", 
+  labs = list(title = "Engagement levels - Has_Issued_Support_Request/Not"),
+  custom = FALSE
+)
+```
+
+
+## Engagement levels for different sales touches to close
+
+
+```{r fig.width = 7, fig.height = 7, dpi = 96}
+data <-data %>%
+  arrange(Sales_Touches_to_Close)
+data$Sales_Touches_to_Close <- as.character(data$Sales_Touches_to_Close)
+
+visualize(
+  data, 
+  xvar = "Sales_Touches_to_Close", 
+  yvar = "Weekly_Logins",
+  theme = "theme_light", 
+  type = "box", 
+  labs = list(title = "Engagement levels across Sales_Touches_to_Close"),
+  custom = FALSE
+)
+```
+
+
+
+## Engagement levels for User MRR
+
+
+```{r fig.width = 7, fig.height = 7, dpi = 96}
+
+data$User_MRR  <- as.character(data$User_MRR)
+
+visualize(
+  data, 
+  xvar = "User_MRR", 
+  yvar = "Weekly_Logins",
+  theme = "theme_light", 
+  type = "box", 
+  labs = list(title = "Engagement levels - User_MRR "),
+  custom = FALSE
+)
+```
+
+There seem to be not much of a difference in engagement levels for users having gmail/zendesk/support request/admin panel. Therfore we can safely eliminate these varibales in our further analysis
+
+
+# Quantile/Cohort Analysis
+
+To understand better about high engagement group, all the users are divided into 5 quantiles based on the weekly logins. Quantile-1 Refers to highest Engagement group where as Quantile-5 refers to lowest Engagement group
+
+```{r}
+## create quintiles based on weekly engagement
+data <- mutate(data, quantile_rank = xtile(Weekly_Logins, 5, rev = TRUE))
+```
+
+
+```{r fig.width = 7, fig.height = 4.67}
+visualize(
+  data,
+  xvar = "quantile_rank",
+  yvar = "Weekly_Logins",
+  type = "bar",
+  labs = list(
+    y = "Weekly login", 
+    x = " quintiles (iq)"
+  ),
+  custom = FALSE
+)
+```
+
+
+```{r}
+data$Sales_Touches_to_Close <- as.numeric(data$Sales_Touches_to_Close)
+
+data %>%
+  group_by(quantile_rank)%>%
+  summarise(avg_engagement = mean(Weekly_Logins),N_count =n(),avg_engagement = mean(Weekly_Logins), slack_int_prop=mean(Slack_Integration  == "Yes"),slack_int_prop=mean(Slack_Integration  == "Yes"),Had_Free_Trial_Prop=mean(Had_Free_Trial== "Yes"),Has_Issued_Support_Request_Prop=mean(Has_Issued_Support_Request== "Yes"),Gmail_Integration_Prop=mean(Gmail_Integration == "Yes"), Avg_Sales_Touches_to_Close=mean(Sales_Touches_to_Close))%>%
+  arrange(desc(avg_engagement))
+```
+
+From the above table it is clear shown that higher engagement group ( quanitle rank=1) has higher levels of slack integration and every user in the group had free trail
+
+
+
+```{r}
+data %>%
+  group_by(quantile_rank)%>%
+  summarise(vg_engagement = mean(Weekly_Logins),tools_storyboard=mean(Most_Used_Page == "/tool/storyboard"),tool_search=mean(Most_Used_Page == "/tool/search"),tool_build_query=mean(Most_Used_Page == "/tool/build_query"),dashboard=mean(Most_Used_Page == "/dashboard"),login=mean(Most_Used_Page == "/login"),home=mean(Most_Used_Page == "/home"))
+```
+
+
+  
+```{r}
+
+data %>%
+  group_by(quantile_rank,Most_Used_Page) %>% 
+  summarise('number'=n()) %>% 
+  ungroup() %>% 
+  ggplot(aes(x=quantile_rank,y=number,fill=Most_Used_Page)) + geom_bar(position="fill", stat="identity")+ labs(x = 'Quantile (1- High Engagement group,5-Low Engagement group)',
+       y = 'Percentage of users in each category',
+       title = 'Distribution of User Most used pages across different Quantiles')
+
+```
+ 
+ 
+
+```{r}
+data %>%
+  group_by(quantile_rank,Territory) %>% 
+  summarise('number'=n()) %>% 
+  ungroup() %>% 
+  ggplot(aes(x=quantile_rank,y=number,fill=Territory)) + geom_bar(position="fill", stat="identity")+ labs(x = 'Quantile (1- High Engagement group,5-Low Engagement group)',
+       y = 'Percentage of users in each category',
+       title = 'Distribution of User Territories across different Quantiles')
+```
+
+
+
+# Regression Analysis
+
+
+```{r}
+result <- regress(
+  data, 
+  rvar = "Weekly_Logins", 
+  evar = c(
+    "Slack_Integration", 
+    "Most_Used_Page", "Had_Free_Trial", 
+    "User_MRR", "Company_Name", 
+    "Industry", "Company_Size", 
+    "Territory", "Sales_Call_in_Trial", 
+    "Zendesk_Integration", 
+    "Salesforce_Integration", 
+    "Gmail_Integration", 
+    "Most_common_referrer", 
+    "Most_common_IP", "Sales_Touches_to_Close", 
+    "Used_Admin_Panel", "Has_Issued_Support_Request"
+  ), 
+  int = "Most_common_referrer:Most_common_IP", 
+  check = "stepwise-backward"
+)
+summary(result)
+```
+
+
+* From the above regression analysis it can be inferred that when the most used page is tools/storyboard engagement levels seems to be high, In all other cases of most visited pages enagagement level seems to decrease. 
+* Also since backward regression is performed, final selection of variables didnt include slack integration varibale. This could be because it might have a high collinearity with the other variables in the final selection list. Nonethless as per our exploratory analysis slack integration is one defining  characterisitc for high engagement groups.
+
+
+
+# Insights & Recommendations
+ 
+
+* Higher engagement groups had slack integration & had free trail. These two variables are the most important featuers whcih define the high enagagement groups
+* Users with most visited page "tools/storyboard" has higher engagement leveles
+* Also Users with territory " East" and with company name "One Legal " had comparitively high engagement levels
+* Though all those variables indicate correaltion with engagement scores ,direct casual relationship cant be established unless further analysis and experimentation
